@@ -1,14 +1,14 @@
 import cv2
 import pyttsx3
 
-# initialize voice engine
+
 engine = pyttsx3.init()
 
 def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-# load pretrained object detection model
+
 net = cv2.dnn.readNetFromCaffe(
     "MobileNetSSD_deploy.prototxt",
     "MobileNetSSD_deploy.caffemodel"
@@ -18,7 +18,7 @@ CLASSES = ["background","aeroplane","bicycle","bird","boat","bottle",
            "bus","car","cat","chair","cow","diningtable","dog","horse",
            "motorbike","person","pottedplant","sheep","sofa","train","tvmonitor"]
 
-# start camera
+
 cap = cv2.VideoCapture(0)
 
 print("GreenGase Obstacle Detection Started")
