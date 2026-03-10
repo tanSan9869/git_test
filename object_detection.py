@@ -1,56 +1,34 @@
 import cv2
 import pyttsx3
 
-
+# initialize voice
 engine = pyttsx3.init()
 
 def speak(text):
     engine.say(text)
     engine.runAndWait()
 
+# load prebuilt haarcascade model from OpenCV
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 
-net = cv2.dnn.readNetFromCaffe(
-    "MobileNetSSD_deploy.prototxt",
-    "MobileNetSSD_deploy.caffemodel"
-)
+# start camera
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
-CLASSES = ["background","aeroplane","bicycle","bird","boat","bottle",
-           "bus","car","cat","chair","cow","diningtable","dog","horse",
-           "motorbike","person","pottedplant","sheep","sofa","train","tvmonitor"]
-
-
-cap = cv2.VideoCapture(0)
-
-print("GreenGase Obstacle Detection Started")
+print("GreenGase Vision System Started")
 
 while True:
     ret, frame = cap.read()
     if not ret:
         break
 
-    h, w = frame.shape[:2]
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    blob = cv2.dnn.blobFromImage(frame, 0.007843, (300,300), 127.5)
-    net.setInput(blob)
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
-    detections = net.forward()
+    for (x,y,w,h) in faces:
+        cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)
 
-    for i in range(detections.shape[2]):
-
-        confidence = detections[0,0,i,2]
-
-        if confidence > 0.5:
-            idx = int(detections[0,0,i,1])
-            label = CLASSES[idx]
-
-            box = detections[0,0,i,3:7] * [w,h,w,h]
-            (startX,startY,endX,endY) = box.astype("int")
-
-            cv2.rectangle(frame,(startX,startY),(endX,endY),(0,255,0),2)
-            cv2.putText(frame,label,(startX,startY-10),
-                        cv2.FONT_HERSHEY_SIMPLEX,0.6,(0,255,0),2)
-
-            speak(f"{label} detected ahead")
+        speak("Person detected ahead")
 
     cv2.imshow("GreenGase Camera", frame)
 
